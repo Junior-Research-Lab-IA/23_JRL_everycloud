@@ -1,0 +1,33 @@
+---
+title: "JRL 23 Every cloud"
+author: "Criado Iwamoto Lemaire"
+date: "2023-05-15"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## The use of Saccharomyces cerevisiae to remove copper from wastewater 
+ 
+Title page
+Abstract
+Introduction 
+Methods
+Design
+Sampling plan
+Analysis plan
+Data availability statement
+Code availability statement
+References
+Acknowledgements
+Author contributions
+Competing interests
+Figures & Figure captions
+Tables 
+Supplementary information
+ 
+ ``` 
+ ```
+ 
