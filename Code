@@ -1,0 +1,112 @@
+# FINAL CODE
+## Packages ####
+library(tidyverse)
+library(ggplot2)
+library(ggpubr)
+library(gstat)
+library(RColorBrewer)
+library(agricolae)
+# Loading and cleanin data ####
+mydata <- read.table('DATA_JRL_2023_Copper.csv', header = TRUE, sep = ";",dec=',')%>%
+  
+select(Strain, ID, Cu_i, Cu_f = Cu_f_mg_l)
+
+
+mydata$Cu_f <- as.numeric(mydata$Cu_f)
+mydata$Strain[mydata$ID == "Sterlity"] <- "Sterlity"
+
+
+# First Graph ####
+mydata %>%
+  filter(ID != "standard") %>%
+  ggplot(aes(x=Cu_i, y=Cu_f, col = Strain))+
+  geom_smooth(method = "lm", na.rm = FALSE, se = F)+
+  geom_point(na.rm=FALSE)+
+  labs(title = "Tendency lines of the final Cu concentration",x="Initial concentration of copper (mg/l)",y="Final concentration of copper (mg/l)")+
+  stat_regline_equation()
+ 
+
+
+
+
+# Model considering CU_i as continue data ####
+mod1 <- lm(Cu_f~Cu_i*Strain, data=mydata)
+summary(mod1)
+anova(mod1)
+summary(mod1)$r.squared
+summary(mod1)$adj.r.squared 
+out<- LSD.test(mod1, "Strain", alpha = 0.05, p.adj="bonferroni", group=TRUE, console = TRUE)
+plot(out)
+
+##Results from the anova: the three of them are relevant. Hight r squared 0.9036
+
+#LSD.test: Multiple comparisons, "Least significant difference" and Adjust P-values
+mod1<-aov(yield~virus, data=sweetpotato)
+
+
+##First, test Paired t-test can be used only when the difference d  is normally distributed. This can be checked using Shapiro-Wilk test.
+###Shapiro-Wilk test 
+
+shapiro.test(mydata$Cu_f)
+##p-value = 0.2026
+
+##Cohen test 
+## H0: µ1 = µ2 (the two population means are equal) vs HA: µ1 ≠µ2 (the two population means are not equal)
+res <- t.test(Cu_f, Strain, data = mydata)
+res
+cohen.d(Cu_f,Strain,data = mydata, var.equal = FALSE)
+
+# Calculating the delta between initial and final Cu concentration ####
+mydata <- mydata %>% 
+  mutate(Delta = (Cu_f - Cu_i)/Cu_i)
+
+# sub data set #####
+mydata.delta <- mydata %>%
+  filter(Cu_i != 0) %>% 
+  filter(Strain != "Sterlity") %>%
+  na.omit()
+
+
+# Graph of Delta with smoothing ####
+mydata.delta %>% ggplot(aes(x = as.numeric(Cu_i), y = Delta, col = Strain)) + 
+  geom_point() + 
+  geom_smooth() + 
+  geom_hline(yintercept=0)+
+  labs(title = "Comparison of Copper concentration for both strains",x="Initial concentration of Copper(mg/l)",y="Decreasing ratio of Copper")+
+  theme(text = element_text(size = 20), )+
+  theme(plot.title = element_text(hjust = 0.5))
+  
+
+
+# modèle for Delta considering initial coper as a factor
+mydata.delta$Cu_i <- as.factor(mydata.delta$Cu_i)
+
+mod2 <- lm(Delta~Cu_i*Strain, data=mydata.delta)
+summary(mod2)
+anova(mod2)
+par(mfrow = c(2,2));plot(mod2)
+out<- LSD.test(mod2, "Strain", alpha = 0.05, p.adj="bonferroni", group=TRUE, console = TRUE)
+plot(out)
+## LSD test: 
+mydata.delta %>%
+  ggplot(aes(x = Strain, y = Delta, fill=Strain)) +
+  geom_boxplot()+
+  scale_fill_brewer(palette="BuPu")+
+  labs(title = "Final Cu concentration ratio ",x="Strain",y="DELTA")+
+  theme(text = element_text(size = 20), )+
+  theme(plot.title = element_text(hjust = 0.5))
+
+
+##To get the boxplot information for JRL_18
+mydata.delta2 <- mydata.delta %>%
+  filter(Cu_i != 0) %>% 
+  filter(Strain != "JRL_19") %>%
+  na.omit()
+summary(mydata.delta2)
+
+##To get the information of the box plot for JRL_19
+mydata.delta3 <- mydata.delta %>%
+  filter(Cu_i != 0) %>% 
+  filter(Strain != "JRL_18") %>%
+  na.omit()
+summary(mydata.delta3)
