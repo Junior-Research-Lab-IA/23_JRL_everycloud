@@ -1,6 +1,6 @@
 # Using H2S  produced by Saccharomyces cerevisiae to remove copper from wastewater 
 ##Junior Research Lab 2023
-###Criado Florencia1, Iwamoto Yuki2 ,  Lemaire Agathe3 
+##Criado Florencia1, Iwamoto Yuki2 ,  Lemaire Agathe3 
 1 Universidad Nacional del Sur 
 2 Affiliation Two
 3  ISIa Huy 
